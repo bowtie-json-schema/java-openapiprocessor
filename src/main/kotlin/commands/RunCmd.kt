@@ -26,12 +26,19 @@ data class Test(
     val valid: Boolean?,
 )
 
-data class RunRequest(val seq: Any, val case: Case) : Request
+data class RunRequest(val seq: Any, val case: Case, val output: String = "flag") : Request
 
 class RunCmd(private val cfg: Configuration) : Request {
 
     @Suppress("TooGenericExceptionCaught")
     fun run(request: RunRequest): Map<String, Any> {
+        if (request.output != "flag") {
+            return mapOf(
+                "seq" to request.seq,
+                "skipped" to true,
+                "message" to "openapiprocessor doesn't support ${request.output} output",
+            )
+        }
         return try {
             validate(request)
         } catch (ex: Exception) {
